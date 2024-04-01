@@ -1,0 +1,76 @@
+{%extends 'blog/base.html'%}
+{%block content%}
+
+<!-- Blog Post -->
+
+<!-- Title -->
+<h1>{{post.title}}</h1>
+
+<!-- Author -->
+<p class="lead">
+    by <a href="#">{{post.user}}</a>
+</p>
+<!--Tags-->
+<div>
+    <span>Tag:</span>
+    {%for tags in tags_for_post %}
+    <a href="{% url 'tag' name=tags.name %}">{{tags.name}}</a>
+    {% empty %}
+    no tag yet.
+    {%endfor%}
+</div>
+<hr>
+
+<!-- Date/Time -->
+<p><span class="glyphicon glyphicon-time"></span> Posted on {{post.published_data}}</p>
+
+<hr>
+
+<!-- Preview Image -->
+{%for img in imgs%}
+<img class="img-responsive" src="{{ img.image.url }}" alt="">
+{%endfor%}
+<hr>
+
+<!-- Post Content -->
+<p class="lead">{{post.content}}</p>
+
+
+<hr>
+
+<!-- Blog Comments -->
+
+<!-- Comments Form -->
+<div class="well">
+    <h4>Leave a Comment:</h4>
+    <form action="{% url 'add_comment' post.title %}" role="form" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <textarea class="form-control" name="comment_text" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+<hr>
+
+<!-- Posted Comments -->
+
+<!-- Comment -->
+{%for comment in comments %}
+<div class="media">
+    <a class="pull-left" href="">
+        <img class="media-object" src="{{ comment.author.profile_wer.avatar.url }}" alt="ava" width="64px" height="64px">
+    </a>
+    <div class="media-body">
+        <h4 class="media-heading">{{comment.author.username}}
+            <small>{{comment.date}}</small>
+        </h4>
+        <p>{{comment.text}}</p>
+    </div>
+</div>
+{% empty %}
+<p>No comments yet.</p>
+{%endfor%}
+{% include "blog/pagination.html" with page=posts %}
+{% endblock %}

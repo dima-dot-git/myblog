@@ -1,0 +1,21 @@
+{%extends 'blog/base.html'%}
+{%block content%}
+<h1>Profile by <a href="#">{{ user.username }}</a></h1>
+<p style="padding-bottom:50px;">Your personal account</p>
+<img src="{{ user.profile_wer.avatar.url }}" class="img-fluid img-thumbnail" alt="ava" width="200px" height="200px">
+<div>
+    <form method="POST" action="{% url 'set_ava' id=user.id %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ set_ava_form.as_p }}
+        <button type="submit" class="btn btn-primary btn-sm" style="margin-top:10px;">Load avatar</button>
+    </form>
+</div>
+<a class="btn btn-secondary" href=""></a>
+<p class="h4" style="padding-top:50px;">Name: {{ user.username }}</p>
+<p class="h4">First name: {{ user.first_name }}</p>
+<p class="h4">Last name: {{ user.last_name }}</p>
+<p class="h4">Email: {{ user.email }}</p>
+<p class="h4">Number of posts: {{ count_post }}</p>
+
+<a class="btn btn-primary" href="{% url 'update_profile' id=user.id %}" style="margin-top:50px;">Edit profile</a>
+{% endblock %}

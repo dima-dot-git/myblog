@@ -1,0 +1,39 @@
+{%extends 'blog/base.html'%}
+{%block content%}
+<h1 class="page-header">
+    Page Heading
+    <small>Secondary Text</small>
+</h1>
+{% for post in posts %}
+<h2>
+    <a href="{% url 'post' title=post.title %}">{{post.title}}</a>
+</h2>
+<p class="lead">
+    by {{post.user}}
+<p><span class="glyphicon glyphicon-time"></span> Posted on {{post.published_data}}</p>
+<div>
+    <span>Tags:</span>
+    {% for tag in tags %}
+    {% for t in tag %}
+    {% if post in t.posts.all %}
+    <a href="{% url 'tag' name=t.name %}">{{ t.name }}</a>
+    {% endif %}
+    {% endfor %}
+    {% endfor %}
+</div>
+<hr>
+{% for img in imgs %}
+    {% if img.post.id == post.id%}
+        <img class="img-responsive" src="{{ img.image.url }}" alt="">
+    {%endif%}
+{%endfor%}
+
+<hr>
+
+<p>{{post.content|truncatewords:20}}</p>
+<a class="btn btn-primary" href="{% url 'post' title=post.title %}">Read More <span
+        class="glyphicon glyphicon-chevron-right"></span></a>
+<hr>
+{% endfor %}
+{% include "blog/pagination.html" with page=posts %}
+{% endblock %}

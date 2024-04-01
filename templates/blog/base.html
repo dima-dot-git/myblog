@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Blog Home - Start Bootstrap Template</title>
+
+    <!-- Bootstrap Core CSS -->
+    {%load static%}
+    <link href="{% static 'blog/css/bootstrap.min.css'%}" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{% static 'blog/css/blog-home.css'%}" rel="stylesheet">
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'index' %}">Home</a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li>
+                    <a href="{% url 'about' %}">About</a>
+                </li>
+                <li>
+                    <a href="{% url 'gallery' %}">Gallery</a>
+                </li>
+
+                {% if user.is_authenticated %}
+                <li>
+                    <a href="{% url 'create' %}">New Post</a>
+                </li>
+                {%endif%}
+                {% if user.username == 'admin' %}
+                <li>
+                    <a href="#">Admin Panel</a>
+                </li>
+                {%endif%}
+            </ul>
+            {% include 'blog/toggle_login.html' %}
+
+        </div>
+
+        <!-- /.navbar-collapse -->
+    </div>
+
+    <!-- /.container -->
+</nav>
+<!-- Page Content -->
+<div class="container">
+    <div class="row">
+
+        <!-- Blog Entries Column -->
+        <div class="col-md-8">
+            {%block content%}{%endblock%}
+        </div>
+
+        <!-- Blog Sidebar Widgets Column -->
+        <div class="col-md-4">
+
+            <!-- Blog Search Well -->
+            <div class="well">
+                <h4>Blog Search</h4>
+                <form method="GET" action="{% url 'search' %}" class="input-group">
+                    {%csrf_token%}
+                    <input type="search" name="query" class="form-control">
+                    <span class="input-group-btn">
+                            <button class="btn btn-default" type="submit">
+                                <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                        </span>
+                </form>
+                <!-- /.input-group -->
+            </div>
+
+            <!-- Blog Categories Well -->
+            <div class="well">
+                <h4>Blog Categories</h4>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <ul class="list-unstyled">
+                            {%for cat in cats1%}
+                            <li><a href="{% url 'category' name=cat.name %}">{{cat.name}}</a>
+                            </li>
+                            {%endfor%}
+                        </ul>
+                    </div>
+                    <!-- /.col-lg-6 -->
+                    <div class="col-sm-6">
+                        <ul class="list-unstyled">
+                            {%for cat in cats2%}
+                            <li><a href="{% url 'category' name=cat.name %}">{{cat.name}}</a>
+                            </li>
+                            {%endfor%}
+                        </ul>
+                    </div>
+                    <!-- /.col-lg-6 -->
+                </div>
+                <!-- /.row -->
+            </div>
+            <div class="well">
+                <h4>Blog All Tags</h4>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <ul class="list-unstyled">
+                            {%for tag in all_tags%}
+                            <li><a href="{% url 'tag' name=tag.name %}">{{tag}}</a>
+                            </li>
+                            {%endfor%}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Side Widget Well -->
+            <div class="well">
+                <h4>Subscribe to the newsletter</h4>
+                <form method="POST" action="{% url 'subscribe' %}">
+                    {%csrf_token%}
+                    {{ form_sub }}
+                    <div class="container">
+                        <div class="row height-100 d-flex justify-content-center align-items-center">
+                            <div class="col-md-8">
+                                <div class="search position-relative">
+                                    <input class="form-control" type="email" name="email"
+                                           placeholder="Your email address" style="width: 250px; ">
+                                    <button class="btn btn-primary" type="submit" style="margin-top:10px;">Signup
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+    <!-- /.row -->
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="row">
+            <div class="col-lg-12">
+                <p>Copyright &copy; Your Website 2024</p>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </footer>
+
+</div>
+<!-- /.container -->
+
+<!-- jQuery -->
+<script src="{% static 'blog/js/jquery.js' %}"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="{% static 'blog/js/bootstrap.min.js' %}"></script>
+
+</body>
+
+</html>

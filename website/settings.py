@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'blog',
     'gallery',
-    'crispy_forms',
-    "crispy_bootstrap3",
+    # 'crispy_forms',
+    # "crispy_bootstrap3",
 ]
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap3"
 

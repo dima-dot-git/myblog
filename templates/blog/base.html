@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Blog Home - Start Bootstrap Template</title>
+    <title>Blog Home</title>
 
     <!-- Bootstrap Core CSS -->
     {%load static%}
@@ -50,7 +50,6 @@
                 <li>
                     <a href="{% url 'gallery' %}">Gallery</a>
                 </li>
-
                 {% if user.is_authenticated %}
                 <li>
                     <a href="{% url 'create' %}">New Post</a>
@@ -65,12 +64,13 @@
             {% include 'blog/toggle_login.html' %}
 
         </div>
-
         <!-- /.navbar-collapse -->
+
     </div>
 
     <!-- /.container -->
 </nav>
+
 <!-- Page Content -->
 <div class="container">
     <div class="row">
@@ -126,9 +126,17 @@
             <div class="well">
                 <h4>Blog All Tags</h4>
                 <div class="row">
-                    <div class="col-sm-12">
+                    <div class="col-sm-6">
                         <ul class="list-unstyled">
-                            {%for tag in all_tags%}
+                            {%for tag in all_tags1%}
+                            <li><a href="{% url 'tag' name=tag.name %}">{{tag}}</a>
+                            </li>
+                            {%endfor%}
+                        </ul>
+                    </div>
+                    <div class="col-sm-6">
+                        <ul class="list-unstyled">
+                            {%for tag in all_tags2%}
                             <li><a href="{% url 'tag' name=tag.name %}">{{tag}}</a>
                             </li>
                             {%endfor%}
@@ -142,18 +150,14 @@
                 <form method="POST" action="{% url 'subscribe' %}">
                     {%csrf_token%}
                     {{ form_sub }}
-                    <div class="container">
-                        <div class="row height-100 d-flex justify-content-center align-items-center">
-                            <div class="col-md-8">
-                                <div class="search position-relative">
-                                    <input class="form-control" type="email" name="email"
-                                           placeholder="Your email address" style="width: 250px; ">
-                                    <button class="btn btn-primary" type="submit" style="margin-top:10px;">Signup
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="search position-relative">
+                        <input class="form-control" type="email" name="email"
+                               placeholder="Your email address" style="width: 100%; ">
+                        <button class="btn btn-primary" type="submit" style="margin-top:10px;"> Signup
+                        </button>
                     </div>
+
+
                 </form>
             </div>
 

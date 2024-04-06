@@ -60,7 +60,9 @@
 {%for comment in comments %}
 <div class="media">
     <a class="pull-left" href="">
-        <img class="media-object" src="{{ comment.author.profile_wer.avatar.url }}" alt="ava" width="64px" height="64px">
+        {% for profile in comment.author.account.all %}
+        <img class="media-object" src="{{ profile.avatar.url }}" alt="ava" width="64px" height="64px">
+        {% endfor %}
     </a>
     <div class="media-body">
         <h4 class="media-heading">{{comment.author.username}}

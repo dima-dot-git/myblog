@@ -14,16 +14,16 @@
 <div>
     <span>Tags:</span>
     {% for tag in tags %}
-    {% for t in tag %}
-    {% if post in t.posts.all %}
-    <a href="{% url 'tag' name=t.name %}">{{ t.name }}</a>
+
+    {% if post in tag.posts.all %}
+    <a href="{% url 'tag' name=tag.name %}">{{ tag.name }}</a>
     {% endif %}
     {% endfor %}
-    {% endfor %}
+
 </div>
 <hr>
 {% for img in imgs %}
-    {% if img.post.id == post.id%}
+    {% if img.post.id == post.id %}
         <img class="img-responsive" src="{{ img.image.url }}" alt="">
     {%endif%}
 {%endfor%}

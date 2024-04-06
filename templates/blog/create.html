@@ -1,20 +1,17 @@
 {% extends 'blog/base.html' %}
+{% load crispy_forms_tags %}
+
 {% block content %}
 <h1>Create new post</h1>
 <form method="POST" action="{% url 'create' %}" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
+    {{ form|crispy }}
+    <small>Enter one or more tags:</small>
+    {{ form_tag|crispy }}
     {{ formset.management_form }}
-    <fieldset>
-        <legend>Images</legend>
-        {{ formset.non_form_errors }}
-        {{ formset.errors }}
-        {% for subform in formset %}
-            <div class="formset-row">
-                {{ subform.as_p }}
-            </div>
-        {% endfor %}
-    </fieldset>
+    {% for subform in formset %}
+        {{ subform|crispy }}
+    {% endfor %}
     <input type="submit" value="Save Post" class="btn btn-default">
 </form>
 {% endblock %}

@@ -12,8 +12,13 @@ class PostForm(forms.ModelForm):
 class AddTagForm(forms.ModelForm):
     class Meta:
         model = Tag
-        exclude = ['post']
+        exclude = ['posts']
 
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        if name.startswith('#'):
+            name = name[1:]
+        return name
 
 class PostsPhotoForm(forms.ModelForm):
     class Meta:

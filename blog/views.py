@@ -1,3 +1,5 @@
+import os
+
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
@@ -5,7 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import now
 
 from .models import Post, Tag, Category, Subscribe, Comment, Profile_WER, PostsPhoto
-from .forms import PostForm, SubscribeForm, PostsPhotoFormSet, ChangeUserForm, ProfileWERForm
+from .forms import PostForm, SubscribeForm, PostsPhotoFormSet, ChangeUserForm, ProfileWERForm, AddTagForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, logout, login
@@ -25,13 +27,15 @@ def get_categories():
 
 def get_tags():
     all_tags = Tag.objects.all()
-    return {"all_tags": all_tags}
+    count = all_tags.count()
+    half = count / 2 + count % 2
+    return {"all_tags1": all_tags[:half], "all_tags2": all_tags[half:]}
 
 
 def index(request):
     posts = Post.objects.all().order_by("-published_data")
     imgs = PostsPhoto.objects.all()
-    paginator = Paginator(posts,2)
+    paginator = Paginator(posts, 3)
     page = request.GET.get('page')
     try:
         posts = paginator.page(page)
@@ -43,7 +47,8 @@ def index(request):
     # posts = Post.objects.filter(published_data__year=2023)
     # posts = Post.objects.filter(content__startswith="Lorem")
     # posts = Post.objects.filter(category__name__iexact="it")
-    tags = get_tags().values()
+    # tags = get_tags().values()
+    tags = Tag.objects.all()
     context = {'posts': posts, "tags": tags, "imgs": imgs}
     context.update(get_categories())
     context.update(get_tags())
@@ -52,10 +57,16 @@ def index(request):
 
 def post(request, title=None):
     post = get_object_or_404(Post, title=title)
-    comments = Comment.objects.filter(post=post)
+    comments = Comment.objects.filter(post=post).order_by("-date")
     tags_for_post = Tag.objects.filter(posts=post)
     imgs = PostsPhoto.objects.filter(post=post)
-    context = {"post": post, "comments": comments, "tags_for_post": tags_for_post, "imgs": imgs}
+    profile_authors = Profile_WER.objects.all()
+    context = {"post": post,
+               "comments": comments,
+               "tags_for_post": tags_for_post,
+               "imgs": imgs,
+               "profile_authors": profile_authors
+               }
     context.update(get_categories())
     context.update(get_tags())
     return render(request, "blog/post.html", context)
@@ -78,7 +89,9 @@ def contact(request):
 def category(request, name=None):
     c = get_object_or_404(Category, name=name)
     posts = Post.objects.filter(category=c).order_by("-published_data")
-    context = {"posts": posts}
+    imgs = PostsPhoto.objects.all()
+    tags = Tag.objects.all()
+    context = {"posts": posts, 'imgs': imgs, 'tags': tags}
     context.update(get_categories())
     context.update(get_tags())
     return render(request, "blog/index.html", context)
@@ -87,7 +100,9 @@ def category(request, name=None):
 def tag(request, name=None):
     tag = get_object_or_404(Tag, name=name)
     posts = tag.posts.all()
-    context = {"posts": posts}
+    imgs = PostsPhoto.objects.all()
+    tags = Tag.objects.all()
+    context = {"posts": posts, 'imgs': imgs, 'tags': tags}
     context.update(get_categories())
     context.update(get_tags())
     return render(request, "blog/index.html", context)
@@ -106,20 +121,34 @@ def search(request):
 def create(request):
     if request.method == 'POST':
         form = PostForm(request.POST)
-        formset = PostsPhotoFormSet(request.POST, request.FILES,
-                                    queryset=PostsPhoto.objects.none())  # Пустой queryset для отображения пустых форм
-        if form.is_valid() and formset.is_valid():
+        formset = PostsPhotoFormSet(request.POST, request.FILES)
+        form_tag = AddTagForm(request.POST)
+        if form.is_valid() and formset.is_valid() and form_tag.is_valid():
             post = form.save(commit=False)
             post.published_data = now()
             post.user = request.user
             post.save()
+            cleaned_data = ["#" + tag.strip() for tag in form_tag.cleaned_data.get("name").split('#') if tag.strip()]
+
+            for new_tag in cleaned_data:
+                if new_tag:
+                    tag, created = Tag.objects.get_or_create(name=new_tag)
+                    if created:
+                        tag.posts.add(post)
+                    else:
+                        tag.posts.add(post)
+
             formset.instance = post
             formset.save()
             return redirect('index')
     else:
         form = PostForm()
-        formset = PostsPhotoFormSet(queryset=PostsPhoto.objects.none())  # Пустой queryset для отображения пустых форм
-    context = {'form': form, 'formset': formset}
+        formset = PostsPhotoFormSet()
+        form_tag = AddTagForm()
+    context = {'form': form,
+               'form_tag': form_tag,
+               'formset': formset
+               }
     context.update(get_categories())
     context.update(get_tags())
     return render(request, "blog/create.html", context)
@@ -158,7 +187,7 @@ class MyLogoutView(View):
 
 
 def user_profile(request, id):
-    profile = get_object_or_404(User, id=id)
+    profile = get_object_or_404(Profile_WER, user_id=id)
     count_post = Post.objects.filter(user=id).count()
     context = {"profile": profile, "count_post": count_post}
     context.update(get_tags())
@@ -167,18 +196,19 @@ def user_profile(request, id):
 
 
 def set_ava(request, id):
-    profile = get_object_or_404(Profile_WER, id=id)
-    user = User.objects.get(id=profile.id)
+    profile = get_object_or_404(Profile_WER, user_id=id)
     if request.method == "POST":
         set_ava_form = ProfileWERForm(request.POST, request.FILES)
         if set_ava_form.is_valid():
             profile.avatar = request.FILES['avatar']
-            profile.user = user
             profile.save()
-            return redirect('index')
+            return redirect("user_profile", id=id)
     else:
         set_ava_form = ProfileWERForm()
-    return render(request, "blog/user_profile.html", {"set_ava_form": set_ava_form})
+    context = {"set_ava_form": set_ava_form, "profile": profile}
+    context.update(get_tags())
+    context.update(get_categories())
+    return render(request, "blog/user_profile.html", context)
 
 
 def update_profile(request, id):
@@ -190,6 +220,8 @@ def update_profile(request, id):
             return redirect("index")
     change_form = ChangeUserForm()
     context = {"change_form": change_form}
+    context.update(get_tags())
+    context.update(get_categories())
     return render(request, "blog/update_profile.html", context)
 
 
@@ -200,12 +232,15 @@ def reg_user(request):
             user = user_new.save()
             username = user_new.cleaned_data.get("username")
             password = user_new.cleaned_data.get("password1")
+            profile_user = Profile_WER.objects.create(user=user, avatar="static/blog/default_avatar.png")
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
             return redirect("index")
     new_user = UserCreationForm()
     context = {"new_user": new_user}
+    context.update(get_tags())
+    context.update(get_categories())
     return render(request, "blog/reg_user.html", context)
 
 

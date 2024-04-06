@@ -40,7 +40,9 @@ class Post(models.Model):
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=30, verbose_name="Заголовок")
+    name = models.CharField(max_length=30,
+                            verbose_name="Ім'я",
+                            unique=True)
     posts = models.ManyToManyField(Post, verbose_name="Пости")
 
     def __str__(self):
@@ -73,9 +75,14 @@ class PostsPhoto(models.Model):
         verbose_name = "Зображення"
         verbose_name_plural = "Зображення"
 
+
 class Profile_WER(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="account")
     avatar = models.ImageField(upload_to="user_avatar")
 
     def __str__(self):
         return self.user.username
+
+    class Meta:
+        verbose_name = "Профіль"
+        verbose_name_plural = "Профілі"

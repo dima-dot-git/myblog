@@ -1,12 +1,8 @@
-import os
-
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
-
 from django.utils.timezone import now
-
-from .models import Post, Tag, Category, Subscribe, Comment, Profile_WER, PostsPhoto
+from .models import Post, Tag, Category, Comment, Profile_WER, PostsPhoto
 from .forms import PostForm, SubscribeForm, PostsPhotoFormSet, ChangeUserForm, ProfileWERForm, AddTagForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
@@ -31,11 +27,16 @@ def get_tags():
     half = count / 2 + count % 2
     return {"all_tags1": all_tags[:half], "all_tags2": all_tags[half:]}
 
+# posts = Post.objects.filter(title__contains="python")
+# posts = Post.objects.filter(published_data__year=2023)
+# posts = Post.objects.filter(content__startswith="Lorem")
+# posts = Post.objects.filter(category__name__iexact="it")
+# tags = get_tags().values()
 
 def index(request):
     posts = Post.objects.all().order_by("-published_data")
-    imgs = PostsPhoto.objects.all()
-    paginator = Paginator(posts, 3)
+
+    paginator = Paginator(posts, 2)
     page = request.GET.get('page')
     try:
         posts = paginator.page(page)
@@ -43,12 +44,13 @@ def index(request):
         posts = paginator.page(1)
     except EmptyPage:
         posts = paginator.page(paginator.num_pages)
-    # posts = Post.objects.filter(title__contains="python")
-    # posts = Post.objects.filter(published_data__year=2023)
-    # posts = Post.objects.filter(content__startswith="Lorem")
-    # posts = Post.objects.filter(category__name__iexact="it")
-    # tags = get_tags().values()
     tags = Tag.objects.all()
+
+    imgs = []
+    for post in posts:
+        img = PostsPhoto.objects.filter(post=post).first()
+        if img:
+            imgs.append(img)
     context = {'posts': posts, "tags": tags, "imgs": imgs}
     context.update(get_categories())
     context.update(get_tags())
@@ -89,8 +91,22 @@ def contact(request):
 def category(request, name=None):
     c = get_object_or_404(Category, name=name)
     posts = Post.objects.filter(category=c).order_by("-published_data")
-    imgs = PostsPhoto.objects.all()
     tags = Tag.objects.all()
+
+    paginator = Paginator(posts, 2)
+    page = request.GET.get('page')
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    except EmptyPage:
+        posts = paginator.page(paginator.num_pages)
+
+    imgs = []
+    for post in posts:
+        img = PostsPhoto.objects.filter(post=post).first()
+        if img:
+            imgs.append(img)
     context = {"posts": posts, 'imgs': imgs, 'tags': tags}
     context.update(get_categories())
     context.update(get_tags())
@@ -100,8 +116,23 @@ def category(request, name=None):
 def tag(request, name=None):
     tag = get_object_or_404(Tag, name=name)
     posts = tag.posts.all()
-    imgs = PostsPhoto.objects.all()
     tags = Tag.objects.all()
+
+    paginator = Paginator(posts, 2)
+    page = request.GET.get('page')
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    except EmptyPage:
+        posts = paginator.page(paginator.num_pages)
+
+    imgs = []
+    for post in posts:
+        img = PostsPhoto.objects.filter(post=post).first()
+        if img:
+            imgs.append(img)
+
     context = {"posts": posts, 'imgs': imgs, 'tags': tags}
     context.update(get_categories())
     context.update(get_tags())
@@ -167,7 +198,7 @@ def subscribe(request):
     context.update(get_tags())
     return render(request, "blog/index.html", context)
 
-
+@login_required
 def add_comment(request, title=None):
     if request.method == 'POST':
         comment_text = request.POST.get('comment_text')
@@ -243,5 +274,23 @@ def reg_user(request):
     context.update(get_categories())
     return render(request, "blog/reg_user.html", context)
 
+def editing_post(request, id):
+    post = get_object_or_404(Post, id=id)
+    form = PostForm(instance=post)
+    formset = PostsPhotoFormSet(instance=post)
+    if request.method == 'POST':
+        form = PostForm(request.POST, instance=post)
+        formset = PostsPhotoFormSet(request.POST, request.FILES, instance=post)
+
+        if form.is_valid() and formset.is_valid():
+            form.save()
+            formset.save()
+            return redirect('post', title=post.title)
+    context = {'form': form, 'formset': formset, "post": post}
+    context.update(get_tags())
+    context.update(get_categories())
+    return render(request, 'blog/edit_post.html',context)
+
 
 "rwtetdfsdf23"
+"nbvbzc233AHAhfd"

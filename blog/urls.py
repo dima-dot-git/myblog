@@ -22,4 +22,5 @@ urlpatterns = [
     path("user_profile/account<int:id>/update_profile/", views.update_profile, name="update_profile"),
     path("reg_user", views.reg_user, name="reg_user"),
     path("user_profile/account<int:id>/set_ava", views.set_ava, name="set_ava"),
+    path("editing_post<int:id>",views.editing_post,name="editing_post"),
 ]

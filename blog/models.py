@@ -25,8 +25,8 @@ class Subscribe(models.Model):
 
 
 class Post(models.Model):
-    title = models.CharField(max_length=30, verbose_name="Заголовок")
-    content = models.TextField(verbose_name="Опысс")
+    title = models.CharField(max_length=100, verbose_name="Заголовок")
+    content = models.TextField(verbose_name="Опис")
     published_data = models.DateTimeField(auto_created=True, verbose_name="Дата")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Категорія")
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор")
@@ -70,6 +70,9 @@ class Comment(models.Model):
 class PostsPhoto(models.Model):
     post = models.ForeignKey(Post, verbose_name="Пост", on_delete=models.CASCADE, related_name="images")
     image = models.ImageField(verbose_name="Зображення", upload_to="Posts_Photos")
+
+    def __str__(self):
+        return f"{self.post}"
 
     class Meta:
         verbose_name = "Зображення"

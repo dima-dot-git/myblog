@@ -20,13 +20,14 @@ class AddTagForm(forms.ModelForm):
             name = name[1:]
         return name
 
+
 class PostsPhotoForm(forms.ModelForm):
     class Meta:
         model = PostsPhoto
         exclude = ["post"]
 
 
-PostsPhotoFormSet = inlineformset_factory(Post, PostsPhoto, form=PostsPhotoForm, extra=1)
+PostsPhotoFormSet = inlineformset_factory(Post, PostsPhoto, form=PostsPhotoForm, extra=1, max_num=4)
 
 
 class ProfileWERForm(forms.ModelForm):

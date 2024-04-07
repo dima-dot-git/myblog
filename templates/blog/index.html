@@ -1,8 +1,8 @@
 {%extends 'blog/base.html'%}
 {%block content%}
 <h1 class="page-header">
-    Page Heading
-    <small>Secondary Text</small>
+    Blogs
+    <small></small>
 </h1>
 {% for post in posts %}
 <h2>
@@ -24,7 +24,7 @@
 <hr>
 {% for img in imgs %}
     {% if img.post.id == post.id %}
-        <img class="img-responsive" src="{{ img.image.url }}" alt="">
+        <img class="img-responsive thumbnail" src="{{ img.image.url }}" alt="">
     {%endif%}
 {%endfor%}
 

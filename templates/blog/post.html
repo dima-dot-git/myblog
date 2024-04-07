@@ -28,7 +28,7 @@
 
 <!-- Preview Image -->
 {%for img in imgs%}
-<img class="img-responsive" src="{{ img.image.url }}" alt="">
+<img class="img-responsive thumbnail" src="{{ img.image.url }}" alt="">
 {%endfor%}
 <hr>
 
@@ -37,8 +37,12 @@
 
 
 <hr>
-
+{% if user.is_authenticated and user == post.user %}
+    <a class="btn btn-primary" href="{% url 'editing_post' id=post.id %}">Edit post</a>
+    <hr>
+{%endif%}
 <!-- Blog Comments -->
+
 
 <!-- Comments Form -->
 <div class="well">
@@ -53,7 +57,6 @@
 </div>
 
 <hr>
-
 <!-- Posted Comments -->
 
 <!-- Comment -->

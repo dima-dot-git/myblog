@@ -3,7 +3,7 @@
 <h1>Profile by <a href="#">{{ user.username }}</a></h1>
 <p style="padding-bottom:50px;">Your personal account</p>
 
-<img src="{{ profile.avatar.url }}" class="img-fluid img-thumbnail" alt="ava" width="200px" height="200px">
+<img src="{{ profile.avatar.url }}" class="img-thumbnail" alt="ava" width="200px" height="200px">
 <form method="POST" action="{% url 'set_ava' id=user.id %}" enctype="multipart/form-data">
     {% csrf_token %}
     {{ set_ava_form.as_p }}

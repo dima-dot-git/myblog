@@ -1,8 +1,10 @@
 {% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
 {% block content %}
-  <form method="POST" action="{% url 'blog_login' %}">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <input type="submit" class="btn btn-default">
-  </form>
+<form method="POST" action="{% url 'blog_login' %}">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <input type="submit" class="btn btn-default">
+    <a href="{% url 'reg_user' %}" class="btn btn-default">Registration</a>
+</form>
 {% endblock %}

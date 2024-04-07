@@ -1,0 +1,17 @@
+{%extends 'blog/base.html'%}
+{% load crispy_forms_tags %}
+
+{%block content%}
+
+<form method="POST" action="{% url 'editing_post' id=post.id%}" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form|crispy }}
+    {{ formset.management_form }}
+    {% for subform in formset %}
+        {{ subform|crispy }}
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a class="btn btn-danger" href="{% url 'post' title=post.title %}">Cancel</a>
+</form>
+
+{%endblock%}
